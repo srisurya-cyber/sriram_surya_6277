@@ -1,0 +1,7 @@
+yfinance
+backtrader
+pandas
+pytz
+beautifulsoup4
+requests
+pyTelegramBotAPI
