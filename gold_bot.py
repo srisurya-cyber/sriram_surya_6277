@@ -9,24 +9,27 @@ from bs4 import BeautifulSoup
 import time
 import logging
 import os
-from telegram import Bot
+from telegram.ext import Updater
 
-# === Configurations ===
+# === Config ===
 RISK_PER_TRADE = 0.015
 ATR_MULTIPLIER = 1.8
 NEWS_BUFFER_MIN = 120
 TIMEZONE = pytz.utc
 TRADING_HOURS_UTC = (12, 17)
-SYMBOL = 'GC=F'  # Gold Futures
+SYMBOL = 'GC=F'
 data_interval = '1h'
 data_period = '7d'
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = int(os.getenv("CHAT_ID"))
-logging.basicConfig(level=logging.INFO)
-bot = Bot(BOT_TOKEN)
 
-# === News Scraper ===
+logging.basicConfig(level=logging.INFO)
+
+updater = Updater(token=BOT_TOKEN, use_context=True)
+bot = updater.bot
+
+# === Scrape ForexFactory Events ===
 def scrape_forex_factory_events():
     try:
         url = "https://www.forexfactory.com/calendar?day=today"
@@ -52,12 +55,11 @@ def scrape_forex_factory_events():
 
         logging.info(f"Found {len(high_impact_events)} high impact events today")
         return high_impact_events
-
     except Exception as e:
         logging.warning(f"News scrape error: {e}")
         return []
 
-# === Strategy ===
+# === Backtrader Strategy ===
 class GoldStrategy(bt.Strategy):
     params = (
         ('trend_ema', 34),
@@ -65,7 +67,7 @@ class GoldStrategy(bt.Strategy):
         ('rsi_period', 14),
         ('atr_period', 14),
         ('news_buffer', timedelta(minutes=NEWS_BUFFER_MIN)),
-        ('trading_hours', TRADING_HOURS_UTC),
+        ('trading_hours', TRADING_HOURS_UTC)
     )
 
     def __init__(self):
@@ -85,7 +87,6 @@ class GoldStrategy(bt.Strategy):
         current_dt = self.data.datetime.datetime(0)
         hour = current_dt.hour
 
-        # News filter
         if self.last_news_check is None or current_dt.date() != self.last_news_check.date():
             self.upcoming_news = scrape_forex_factory_events()
             self.last_news_check = current_dt
@@ -105,11 +106,9 @@ class GoldStrategy(bt.Strategy):
         position_size = risk_capital / (self.atr[0] * ATR_MULTIPLIER)
 
         if not self.position:
-            if (
-                self.data.close[0] > self.hull[0] and
+            if (self.data.close[0] > self.hull[0] and
                 self.ema[0] > self.ema[-1] and
-                self.rsi[0] < 65
-            ):
+                self.rsi[0] < 65):
                 self.buy(size=position_size / self.data.close[0])
                 self.stop_price = self.data.close[0] - (self.atr[0] * ATR_MULTIPLIER)
                 self.entry_price = self.data.close[0]
@@ -131,30 +130,22 @@ class GoldStrategy(bt.Strategy):
                 logging.info(msg)
                 bot.send_message(chat_id=CHAT_ID, text=msg)
 
-# === Backtest & Live Loop ===
+# === Run Loop ===
 def run_backtest_live():
     while True:
         cerebro = bt.Cerebro()
         logging.info("Fetching market data...")
-        df = yf.download(SYMBOL, period=data_period, interval=data_interval, auto_adjust=True)
+        df = yf.download(SYMBOL, period=data_period, interval=data_interval)
+        df.columns = [c.lower() for c in df.columns]
 
-        if not isinstance(df, pd.DataFrame) or df.empty:
-            logging.warning("Data download failed or returned empty. Skipping this round.")
-            time.sleep(3600)
-            continue
-
-        df.columns = [c.lower() for c in df.columns if isinstance(c, str)]
         data = bt.feeds.PandasData(dataname=df)
-
         cerebro.adddata(data)
         cerebro.addstrategy(GoldStrategy)
         cerebro.broker.setcash(10000)
         cerebro.broker.setcommission(commission=0.0002)
-
         cerebro.run()
-        time.sleep(3600)
+        time.sleep(3600)  # rerun every hour
 
-# === Start Thread ===
 if __name__ == '__main__':
     t = threading.Thread(target=run_backtest_live)
     t.start()
