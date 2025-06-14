@@ -1,4 +1,0 @@
-runs-on: ubuntu-latest
-strategy:
-  matrix:
-    python-version: [3.10]
