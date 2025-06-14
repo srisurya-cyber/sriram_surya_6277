@@ -5,3 +5,4 @@ pytz
 beautifulsoup4
 requests
 pyTelegramBotAPI
+python-telegram-bot==13.15
