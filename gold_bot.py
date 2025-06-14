@@ -1,5 +1,15 @@
-import yfinance as yf import backtrader as bt import pandas as pd import pytz import threading from datetime import datetime, timedelta import requests from bs4 import BeautifulSoup import time import logging import os from telegram import Bot
-
+import yfinance as yf
+import backtrader as bt
+import pandas as pd
+import pytz
+import threading
+from datetime import datetime, timedelta
+import requests
+from bs4 import BeautifulSoup
+import time
+import logging
+import os
+from telegram import Bot
 ========== CONFIGURATION ==========
 
 RISK_PER_TRADE = 0.015 ATR_MULTIPLIER = 1.8 NEWS_BUFFER_MIN = 120 TIMEZONE = pytz.utc TRADING_HOURS_UTC = (12, 17) SYMBOL = 'GC=F'  # Gold Futures data_interval = '1h' data_period = '7d'
