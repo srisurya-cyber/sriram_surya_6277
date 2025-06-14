@@ -13,8 +13,14 @@ import logging
 import os
 from telegram import Bot
 
-RISK_PER_TRADE = 0.015 ATR_MULTIPLIER = 1.8 NEWS_BUFFER_MIN = 120 TIMEZONE = pytz.utc TRADING_HOURS_UTC = (12, 17) SYMBOL = 'GC=F' data_interval = '1h' data_period = '7d'
-
+RISK_PER_TRADE = 0.015
+ATR_MULTIPLIER = 1.8
+NEWS_BUFFER_MIN = 120
+TIMEZONE = pytz.utc
+TRADING_HOURS_UTC = (12, 17)
+SYMBOL = 'GC=F'  # Gold Futures
+data_interval = '1h'
+data_period = '7d'
 BOT_TOKEN = os.getenv("BOT_TOKEN") or 'your_bot_token_here' CHAT_ID = int(os.getenv("CHAT_ID") or 123456789)
 
 logging.basicConfig(level=logging.INFO) bot = Bot(BOT_TOKEN)
