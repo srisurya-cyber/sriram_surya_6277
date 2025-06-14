@@ -1,6 +1,7 @@
 backtrader
 yfinance
-beautifulsoup4
-requests
-python-telegram-bot==13.15
+pandas
 pytz
+requests
+beautifulsoup4
+python-telegram-bot==13.15
