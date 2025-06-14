@@ -1,10 +1,17 @@
-#✅ Cleaned & Enhanced Gold Telegram Bot Script
 
-Save this as gold_bot.py
 
-import yfinance as yf import backtrader as bt import pandas as pd import pytz import threading from datetime import datetime, timedelta import requests from bs4 import BeautifulSoup import time import logging import os from telegram import Bot
-
-=== Configuration ===
+import yfinance as yf
+import backtrader as bt
+import pandas as pd
+import pytz
+import threading
+from datetime import datetime, timedelta
+import requests
+from bs4 import BeautifulSoup
+import time
+import logging
+import os
+from telegram import Bot
 
 RISK_PER_TRADE = 0.015 ATR_MULTIPLIER = 1.8 NEWS_BUFFER_MIN = 120 TIMEZONE = pytz.utc TRADING_HOURS_UTC = (12, 17) SYMBOL = 'GC=F' data_interval = '1h' data_period = '7d'
 
