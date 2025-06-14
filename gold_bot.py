@@ -173,7 +173,7 @@ def run_bot_loop():
         cerebro.run()
 
         # Sleep until next hour + 5s
-        now = datetime.now(datetime.UTC)  # instead of datetime.utcnow()
+        now = datetime.now(pytz.utc)  # instead of datetime.utcnow()
         next_run = (now + timedelta(hours=1)).replace(minute=0, second=5, microsecond=0)
         sleep_secs = (next_run - now).total_seconds()
         time.sleep(sleep_secs)
