@@ -21,8 +21,8 @@ TRADING_HOURS_UTC = (12, 17)
 SYMBOL = 'GC=F'  # Gold Futures
 data_interval = '1h'
 data_period = '7d'
-BOT_TOKEN = os.getenv("BOT_TOKEN") or 'your_bot_token_here' CHAT_ID = int(os.getenv("CHAT_ID") or 123456789)
-
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+CHAT_ID = int(os.getenv("CHAT_ID"))
 logging.basicConfig(level=logging.INFO) bot = Bot(BOT_TOKEN)
 
 def scrape_forex_factory_events(): try: url = "https://www.forexfactory.com/calendar?day=today" headers = {'User-Agent': 'Mozilla/5.0'} response = requests.get(url, headers=headers) soup = BeautifulSoup(response.text, 'html.parser')
